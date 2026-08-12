@@ -1,0 +1,6 @@
+# This is Intellij IDEA HTTP collection
+# It's plain text and one can run it directly from Ultimate Intellij IDEA
+# or VS Code with httpyac plugin
+
+### Hecking health endpoint
+GET http://localhost:8080/health
