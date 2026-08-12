@@ -1,0 +1,13 @@
+package com.sergeypetrunin.ark_invest_api;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class ArkInvestApiApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
