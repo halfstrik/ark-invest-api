@@ -4,3 +4,6 @@
 
 ### Checking health endpoint
 GET http://localhost:8080/health
+
+### Get all funds
+GET http://localhost:8080/funds

@@ -1,3 +1,8 @@
 spring:
   application:
     name: ark-invest-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ark_invest_db}
+    username: ${DB_USER:app}
+    password: ${DB_PASS:app}
+    driver-class-name: org.postgresql.Driver
