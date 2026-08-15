@@ -30,6 +30,14 @@ public class FundTransactionRepository {
         );
     }
 
+    public List<FundTransaction> findByFundId(UUID fundId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM fund_transaction WHERE fund_id = ?",
+                DataClassRowMapper.newInstance(FundTransaction.class),
+                fundId
+        );
+    }
+
     @Transactional
     public UUID create(
         UUID fundId,

@@ -16,15 +16,16 @@ CREATE TABLE investor (
     CONSTRAINT uq_investor_email UNIQUE (email)
 );
 
-CREATE TYPE transaction_effect AS ENUM ('CREDIT', 'DEBIT');
-
-CREATE TYPE transaction_type AS ENUM (
-    'CONTRIBUTION',
-    'INTEREST_INCOME',
-    'DISTRIBUTION',
-    'GENERAL_EXPENSE',
-    'MANAGEMENT_FEE'
-);
+-- Since Sqlite does not support enums, we're storing them as VARCHAR(25)
+-- CREATE TYPE transaction_effect AS ENUM ('CREDIT', 'DEBIT');
+--
+-- CREATE TYPE transaction_type AS ENUM (
+--     'CONTRIBUTION',
+--     'INTEREST_INCOME',
+--     'DISTRIBUTION',
+--     'GENERAL_EXPENSE',
+--     'MANAGEMENT_FEE'
+-- );
 
 CREATE TABLE fund_transaction (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -32,8 +33,8 @@ CREATE TABLE fund_transaction (
     fund_id UUID NOT NULL,
     investor_id UUID NOT NULL,
 
-    transaction_type transaction_type NOT NULL,
-    transaction_effect transaction_effect NOT NULL,
+    transaction_type VARCHAR(25) NOT NULL,
+    transaction_effect VARCHAR(25) NOT NULL,
     amount NUMERIC(18,2) NOT NULL CHECK (amount > 0),
     transaction_date DATE NOT NULL,
 

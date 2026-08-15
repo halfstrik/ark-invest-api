@@ -123,4 +123,61 @@ class FundTransactionRepositoryTest {
         assertThat(transaction.description()).isEqualTo("Initial contribution");
         assertThat(transaction.transactionDate()).isNotNull();
     }
+
+    @Test
+    void shouldFindOnlyTransactionsForRequestedFund() {
+        UUID firstFundId = UUID.randomUUID();
+        UUID secondFundId = UUID.randomUUID();
+        UUID firstInvestorId = UUID.randomUUID();
+        UUID secondInvestorId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", firstFundId.toString())
+                .param("name", "First Fund")
+                .param("description", "First test fund")
+                .update();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", secondFundId.toString())
+                .param("name", "Second Fund")
+                .param("description", "Second test fund")
+                .update();
+
+        jdbc.sql("INSERT INTO investor (id, name, email) VALUES (:id, :name, :email)")
+                .param("id", firstInvestorId.toString())
+                .param("name", "First Investor")
+                .param("email", "first@example.com")
+                .update();
+
+        jdbc.sql("INSERT INTO investor (id, name, email) VALUES (:id, :name, :email)")
+                .param("id", secondInvestorId.toString())
+                .param("name", "Second Investor")
+                .param("email", "second@example.com")
+                .update();
+
+        UUID firstTransactionId = repository.create(
+                firstFundId,
+                firstInvestorId,
+                TransactionType.CONTRIBUTION,
+                TransactionEffect.CREDIT,
+                new BigDecimal("100.0"),
+                "First fund contribution"
+        );
+
+        repository.create(
+                secondFundId,
+                secondInvestorId,
+                TransactionType.CONTRIBUTION,
+                TransactionEffect.CREDIT,
+                new BigDecimal("200.0"),
+                "Second fund contribution"
+        );
+
+        var result = repository.findByFundId(firstFundId);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).id()).isEqualTo(firstTransactionId);
+        assertThat(result.get(0).fundId()).isEqualTo(firstFundId);
+        assertThat(result.get(0).description()).isEqualTo("First fund contribution");
+    }
 }
