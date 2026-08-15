@@ -47,4 +47,26 @@ class InvestorRepositoryTest {
 
         assertThat(result).containsExactly(investor);
     }
+
+    @Test
+    void shouldCreateInvestorAndPersistIt() {
+        String name = "Jane Doe";
+        String email = "jane@example.com";
+
+        UUID id = repository.create(name, email);
+
+        var result = repository.findAll();
+
+        assertThat(result).containsExactly(new Investor(id, name, email));
+    }
+
+    @Test
+    void shouldRejectDuplicateInvestorEmail() {
+        String email = "duplicate@example.com";
+
+        repository.create("First Investor", email);
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () ->
+                repository.create("Second Investor", email));
+    }
 }

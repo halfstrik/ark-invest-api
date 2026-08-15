@@ -32,3 +32,23 @@ Accept: application/json
 
 ### Get list of all investors
 GET http://localhost:8080/investors
+
+### Create new investor
+POST http://localhost:8080/investors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Test Investor 1",
+  "email": "good@example.com"
+}
+
+### Create new investor with bad email fails
+POST http://localhost:8080/investors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Test Investor 2",
+  "email": "bad#example.com"
+}
