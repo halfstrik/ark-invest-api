@@ -1,6 +1,8 @@
 package com.sergeypetrunin.arkinvest.repositories;
 
 import com.sergeypetrunin.arkinvest.models.FundTransaction;
+import com.sergeypetrunin.arkinvest.models.TransactionEffect;
+import com.sergeypetrunin.arkinvest.models.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,12 +32,12 @@ public class FundTransactionRepository {
 
     @Transactional
     public UUID create(
-            UUID fundId,
-            UUID investorId,
-            String transactionType,
-            String transactionEffect,
-            BigDecimal amount,
-            String description
+        UUID fundId,
+        UUID investorId,
+        TransactionType transactionType,
+        TransactionEffect transactionEffect,
+        BigDecimal amount,
+        String description
     ) {
         UUID id = UUID.randomUUID();
         String sql = """
@@ -52,8 +54,8 @@ public class FundTransactionRepository {
                 .param("id", id)
                 .param("fund_id", fundId)
                 .param("investor_id", investorId)
-                .param("transaction_type", transactionType)
-                .param("transaction_effect", transactionEffect)
+                .param("transaction_type", transactionType.name())
+                .param("transaction_effect", transactionEffect.name())
                 .param("amount", amount)
                 .param("description", description)
                 .update();

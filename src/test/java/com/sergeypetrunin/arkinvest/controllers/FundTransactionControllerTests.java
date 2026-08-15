@@ -1,6 +1,8 @@
 package com.sergeypetrunin.arkinvest.controllers;
 
 import com.sergeypetrunin.arkinvest.models.FundTransaction;
+import com.sergeypetrunin.arkinvest.models.TransactionEffect;
+import com.sergeypetrunin.arkinvest.models.TransactionType;
 import com.sergeypetrunin.arkinvest.repositories.FundTransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +37,8 @@ public class FundTransactionControllerTests {
                 transactionId,
                 fundId,
                 investorId,
-                "CONTRIBUTION",
-                "CREDIT",
+                TransactionType.CONTRIBUTION,
+                TransactionEffect.CREDIT,
                 new BigDecimal("100.50"),
                 "2026-08-14",
                 "Initial contribution"
