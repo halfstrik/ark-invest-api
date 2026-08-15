@@ -29,3 +29,6 @@ Accept: application/json
 {
   "description": "New Life!!!"
 }
+
+### Get list of all investors
+GET http://localhost:8080/investors
