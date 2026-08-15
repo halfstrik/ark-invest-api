@@ -27,6 +27,13 @@ public class InvestorController {
         return new ResponseEntity<>(investors, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Investor> getInvestorById(@PathVariable UUID id) {
+        return investorRepository.findById(id)
+                .map(investor -> new ResponseEntity<>(investor, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     public record CreateInvestorRequest(
             String name,
             @Email

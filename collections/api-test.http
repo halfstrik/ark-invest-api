@@ -52,3 +52,6 @@ Accept: application/json
   "name": "Test Investor 2",
   "email": "bad#example.com"
 }
+
+### Get investor by ID
+GET http://localhost:8080/investors/134b8f44-fce3-4480-8617-d09f8bf3d1e8

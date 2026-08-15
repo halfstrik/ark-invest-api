@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -18,6 +19,13 @@ public class InvestorRepository {
 
     public List<Investor> findAll() {
         return jdbcTemplate.query("SELECT * FROM investor", DataClassRowMapper.newInstance(Investor.class));
+    }
+
+    public Optional<Investor> findById(UUID id) {
+        String sql = "SELECT * FROM investor WHERE id = ?";
+        return jdbcTemplate.query(sql, DataClassRowMapper.newInstance(Investor.class), id)
+                .stream()
+                .findFirst();
     }
 
     @Transactional

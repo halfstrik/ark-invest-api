@@ -1,5 +1,6 @@
 package com.sergeypetrunin.arkinvest.controllers;
 
+import com.sergeypetrunin.arkinvest.models.Investor;
 import com.sergeypetrunin.arkinvest.repositories.InvestorRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -54,5 +57,27 @@ public class InvestorControllerTests {
                                 }
                                 """))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldGetInvestorByIdWhenExists() throws Exception {
+        UUID id = UUID.randomUUID();
+        Investor investor = new Investor(id, "Sergey Petrunin", "sergey@example.com");
+        when(investorRepository.findById(id)).thenReturn(Optional.of(investor));
+
+        mockMvc.perform(get("/investors/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.name").value("Sergey Petrunin"))
+                .andExpect(jsonPath("$.email").value("sergey@example.com"));
+    }
+
+    @Test
+    void shouldReturn404WhenInvestorByIdDoesNotExist() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(investorRepository.findById(id)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/investors/" + id))
+                .andExpect(status().isNotFound());
     }
 }

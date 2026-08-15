@@ -69,4 +69,26 @@ class InvestorRepositoryTest {
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () ->
                 repository.create("Second Investor", email));
     }
+
+    @Test
+    void shouldFindInvestorByIdWhenExists() {
+        String name = "John Doe";
+        String email = "john@example.com";
+
+        UUID id = repository.create(name, email);
+
+        var result = repository.findById(id);
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(new Investor(id, name, email));
+    }
+
+    @Test
+    void shouldReturnEmptyWhenInvestorByIdDoesNotExist() {
+        UUID id = UUID.randomUUID();
+
+        var result = repository.findById(id);
+
+        assertThat(result).isEmpty();
+    }
 }
