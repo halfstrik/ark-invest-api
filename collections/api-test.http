@@ -58,3 +58,17 @@ GET http://localhost:8080/investors/134b8f44-fce3-4480-8617-d09f8bf3d1e8
 
 ### Get a list of all transactionsd
 GET http://localhost:8080/transactions
+
+### Create new transaction
+POST http://localhost:8080/transactions
+Content-Type: application/json
+Accept: application/json
+
+{
+  "fund_id": "a0e2e16c-0223-4970-a9c3-a8b3de6ca4e9",
+  "investor_id": "134b8f44-fce3-4480-8617-d09f8bf3d1e8",
+  "transaction_type": "CONTRIBUTION",
+  "transaction_effect": "CREDIT",
+  "amount": 100.50,
+  "description": "Initial contribution"
+}

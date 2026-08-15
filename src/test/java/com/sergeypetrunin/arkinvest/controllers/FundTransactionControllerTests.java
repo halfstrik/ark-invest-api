@@ -7,6 +7,7 @@ import com.sergeypetrunin.arkinvest.repositories.FundTransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -14,8 +15,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,5 +60,44 @@ public class FundTransactionControllerTests {
                 .andExpect(jsonPath("$[0].amount").value(100.50))
                 .andExpect(jsonPath("$[0].transaction_date").value("2026-08-14"))
                 .andExpect(jsonPath("$[0].description").value("Initial contribution"));
+    }
+
+    @Test
+    void shouldCreateTransactionWithValidRequest() throws Exception {
+        UUID transactionId = UUID.randomUUID();
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        when(fundTransactionRepository.create(
+                eq(fundId),
+                eq(investorId),
+                eq(TransactionType.CONTRIBUTION),
+                eq(TransactionEffect.CREDIT),
+                any(BigDecimal.class),
+                eq("Initial contribution")
+        )).thenReturn(transactionId);
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 100.50,
+                                    "description": "Initial contribution"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "http://localhost/transactions/" + transactionId))
+                .andExpect(jsonPath("$.id").value(transactionId.toString()))
+                .andExpect(jsonPath("$.fund_id").value(fundId.toString()))
+                .andExpect(jsonPath("$.investor_id").value(investorId.toString()))
+                .andExpect(jsonPath("$.transaction_type").value("CONTRIBUTION"))
+                .andExpect(jsonPath("$.transaction_effect").value("CREDIT"))
+                .andExpect(jsonPath("$.amount").value(100.50))
+                .andExpect(jsonPath("$.transaction_date").exists())
+                .andExpect(jsonPath("$.description").value("Initial contribution"));
     }
 }
