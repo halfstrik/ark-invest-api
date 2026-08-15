@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class FundRepository {
@@ -18,4 +19,14 @@ public class FundRepository {
         return jdbcTemplate.query("SELECT * FROM fund", DataClassRowMapper.newInstance(Fund.class));
     }
 
+    public UUID create(String name, String description) {
+        UUID id = UUID.randomUUID();
+        String sql = """
+            INSERT INTO fund (id, name, description)
+            VALUES (?, ?, ?)
+        """;
+
+        jdbcTemplate.update(sql, id, name, description);
+        return id;
+    }
 }

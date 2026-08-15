@@ -48,4 +48,16 @@ class FundRepositoryTest {
         assertThat(result).containsExactly(fund);
     }
 
+    @Test
+    void shouldCreateFund() {
+        String name = "Growth Fund";
+        String description = "A fund focused on growth stocks";
+
+        UUID id = repository.create(name, description);
+
+        var result = repository.findAll();
+
+        assertThat(result).containsExactly(new Fund(id, name, description));
+    }
+
 }

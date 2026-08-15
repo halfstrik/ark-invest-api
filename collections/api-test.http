@@ -7,3 +7,13 @@ GET http://localhost:8080/health
 
 ### Get all funds
 GET http://localhost:8080/funds
+
+### Create new fund
+POST http://localhost:8080/funds
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Test Fund 1",
+  "description": "testdescription"
+}
