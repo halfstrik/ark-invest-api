@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Repository
 public class FundRepository {
@@ -28,5 +29,12 @@ public class FundRepository {
 
         jdbcTemplate.update(sql, id, name, description);
         return id;
+    }
+
+    public Optional<Fund> findById(UUID id) {
+        String sql = "SELECT * FROM fund WHERE id = ?";
+        return jdbcTemplate.query(sql, DataClassRowMapper.newInstance(Fund.class), id)
+                .stream()
+                .findFirst();
     }
 }

@@ -60,4 +60,32 @@ class FundRepositoryTest {
         assertThat(result).containsExactly(new Fund(id, name, description));
     }
 
+    @Test
+    void shouldFindFundByIdWhenExists() {
+        var fund = new Fund(
+                UUID.randomUUID(),
+                "Innovation Fund",
+                "Focuses on disruptive innovation"
+        );
+        jdbc.sql("""
+            INSERT INTO fund (id, name, description)
+            VALUES (:id, :name, :desc)
+            """)
+                .param("id", fund.id().toString())
+                .param("name", fund.name())
+                .param("desc", fund.description())
+                .update();
+
+        var result = repository.findById(fund.id());
+
+        assertThat(result).isPresent().contains(fund);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenFundByIdDoesNotExist() {
+        var result = repository.findById(UUID.randomUUID());
+
+        assertThat(result).isEmpty();
+    }
+
 }

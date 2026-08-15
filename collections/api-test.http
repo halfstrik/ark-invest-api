@@ -17,3 +17,6 @@ Accept: application/json
   "name": "Test Fund 1",
   "description": "testdescription"
 }
+
+### Get fund by ID
+GET http://localhost:8080/funds/7cfcf4c1-54b2-45fb-a3f0-1c50a913fbe2

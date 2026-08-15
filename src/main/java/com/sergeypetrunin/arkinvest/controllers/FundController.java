@@ -10,6 +10,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -42,6 +43,13 @@ public class FundController {
                 .toUri();
 
         return ResponseEntity.created(location).body(fund);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Fund> getFundById(@PathVariable UUID id) {
+        Optional<Fund> fund = fundRepository.findById(id);
+        return fund.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }
