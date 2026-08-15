@@ -1,6 +1,5 @@
 package com.sergeypetrunin.arkinvest.controllers;
 
-import com.sergeypetrunin.arkinvest.models.Fund;
 import com.sergeypetrunin.arkinvest.repositories.FundRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
