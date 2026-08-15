@@ -1,8 +1,8 @@
 package com.sergeypetrunin.arkinvest.controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sergeypetrunin.arkinvest.business.ReportCalculator;
 import com.sergeypetrunin.arkinvest.models.FundTransaction;
-import com.sergeypetrunin.arkinvest.models.TransactionEffect;
 import com.sergeypetrunin.arkinvest.repositories.FundTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,9 +32,8 @@ public class ReportController {
     public ResponseEntity<FundReport> getFundReport(@PathVariable UUID id) {
         List<FundTransaction> transactions = fundTransactionRepository.findByFundId(id);
 
-        BigDecimal totalBalance = transactions.stream()
-                .map(t -> t.transactionEffect() == TransactionEffect.CREDIT ? t.amount() : t.amount().negate())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        ReportCalculator calculator = new ReportCalculator();
+        BigDecimal totalBalance = calculator.calculateTotalBalance(transactions);
 
         return new ResponseEntity<>(new FundReport(totalBalance, transactions), HttpStatus.OK);
     }
