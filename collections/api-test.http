@@ -55,3 +55,6 @@ Accept: application/json
 
 ### Get investor by ID
 GET http://localhost:8080/investors/134b8f44-fce3-4480-8617-d09f8bf3d1e8
+
+### Get a list of all transactionsd
+GET http://localhost:8080/transactions
