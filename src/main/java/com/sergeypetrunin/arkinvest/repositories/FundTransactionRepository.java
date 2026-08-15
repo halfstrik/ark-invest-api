@@ -39,6 +39,13 @@ public class FundTransactionRepository {
         BigDecimal amount,
         String description
     ) {
+        if (!existsFund(fundId)) {
+            throw new IllegalArgumentException("Fund with id '" + fundId + "' does not exist");
+        }
+        if (!existsInvestor(investorId)) {
+            throw new IllegalArgumentException("Investor with id '" + investorId + "' does not exist");
+        }
+
         UUID id = UUID.randomUUID();
         String sql = """
             INSERT INTO fund_transaction (
@@ -60,5 +67,21 @@ public class FundTransactionRepository {
                 .param("description", description)
                 .update();
         return id;
+    }
+
+    private boolean existsFund(UUID id) {
+        return jdbcClient.sql("SELECT 1 FROM fund WHERE id = :id")
+                .param("id", id)
+                .query(Integer.class)
+                .optional()
+                .isPresent();
+    }
+
+    private boolean existsInvestor(UUID id) {
+        return jdbcClient.sql("SELECT 1 FROM investor WHERE id = :id")
+                .param("id", id)
+                .query(Integer.class)
+                .optional()
+                .isPresent();
     }
 }

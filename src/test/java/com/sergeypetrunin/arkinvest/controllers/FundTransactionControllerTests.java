@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -99,5 +100,36 @@ public class FundTransactionControllerTests {
                 .andExpect(jsonPath("$.amount").value(100.50))
                 .andExpect(jsonPath("$.transaction_date").exists())
                 .andExpect(jsonPath("$.description").value("Initial contribution"));
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingTransactionForNonExistentFund() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        doThrow(new IllegalArgumentException("Fund with id '" + fundId + "' does not exist"))
+                .when(fundTransactionRepository)
+                .create(
+                        eq(fundId),
+                        eq(investorId),
+                        eq(TransactionType.CONTRIBUTION),
+                        eq(TransactionEffect.CREDIT),
+                        any(BigDecimal.class),
+                        eq("Initial contribution")
+                );
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 100.50,
+                                    "description": "Initial contribution"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
     }
 }
