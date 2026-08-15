@@ -88,4 +88,15 @@ class FundRepositoryTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void shouldRejectDuplicateFundName() {
+        String name = "Unique Fund";
+        String description = "Original description";
+
+        repository.create(name, description);
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () ->
+                repository.create(name, "Another description"));
+    }
+
 }
