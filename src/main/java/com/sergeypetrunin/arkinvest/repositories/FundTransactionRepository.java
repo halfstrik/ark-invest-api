@@ -4,6 +4,7 @@ import com.sergeypetrunin.arkinvest.models.FundTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,9 @@ public class FundTransactionRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private JdbcClient jdbcClient;
 
     public List<FundTransaction> findAll() {
         return jdbcTemplate.query(
@@ -40,12 +44,19 @@ public class FundTransactionRepository {
                 amount, transaction_date, description
             )
             VALUES (
-                ?, ?, ?,
-                ?, ?,
-                ?, CURRENT_DATE, ?
+                :id, :fund_id, :investor_id, :transaction_type, :transaction_effect,
+                :amount, CURRENT_DATE, :description
             )
             """;
-        jdbcTemplate.update(sql, id, fundId, investorId, transactionType, transactionEffect, amount, description);
+        jdbcClient.sql(sql)
+                .param("id", id)
+                .param("fund_id", fundId)
+                .param("investor_id", investorId)
+                .param("transaction_type", transactionType)
+                .param("transaction_effect", transactionEffect)
+                .param("amount", amount)
+                .param("description", description)
+                .update();
         return id;
     }
 }
