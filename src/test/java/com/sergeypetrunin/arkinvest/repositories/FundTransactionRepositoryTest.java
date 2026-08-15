@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -80,5 +81,45 @@ class FundTransactionRepositoryTest {
         var result = repository.findAll();
 
         assertThat(result).containsExactly(transaction);
+    }
+
+    @Test
+    void shouldCreateTransactionAndPersistIt() {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", fundId.toString())
+                .param("name", "Test Fund")
+                .param("description", "A test fund")
+                .update();
+
+        jdbc.sql("INSERT INTO investor (id, name, email) VALUES (:id, :name, :email)")
+                .param("id", investorId.toString())
+                .param("name", "Test Investor")
+                .param("email", "test@example.com")
+                .update();
+
+        UUID transactionId = repository.create(
+                fundId,
+                investorId,
+                "CONTRIBUTION",
+                "CREDIT",
+                new BigDecimal("100.5"),
+                "Initial contribution"
+        );
+
+        var result = repository.findAll();
+
+        assertThat(result).hasSize(1);
+        var transaction = result.get(0);
+        assertThat(transaction.id()).isEqualTo(transactionId);
+        assertThat(transaction.fundId()).isEqualTo(fundId);
+        assertThat(transaction.investorId()).isEqualTo(investorId);
+        assertThat(transaction.transactionType()).isEqualTo("CONTRIBUTION");
+        assertThat(transaction.transactionEffect()).isEqualTo("CREDIT");
+        assertThat(transaction.amount()).isEqualByComparingTo(new BigDecimal("100.5"));
+        assertThat(transaction.description()).isEqualTo("Initial contribution");
+        assertThat(transaction.transactionDate()).isNotNull();
     }
 }
