@@ -132,4 +132,64 @@ public class FundTransactionControllerTests {
                                 """.formatted(fundId, investorId)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturn400WhenTransactionAmountIsNegative() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": -50.00,
+                                    "description": "Invalid transaction"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenTransactionTypeIsInvalid() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "UNKNOWN_TYPE",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 50.00,
+                                    "description": "Invalid type"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenTransactionEffectIsInvalid() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "UNKNOWN_EFFECT",
+                                    "amount": 50.00,
+                                    "description": "Invalid effect"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
 }

@@ -52,6 +52,10 @@ public class FundTransactionController {
 
     @PostMapping
     public ResponseEntity<FundTransaction> createTransaction(@RequestBody CreateFundTransactionRequest request) {
+        if (request.amount() == null || request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transaction amount must be positive");
+        }
+
         UUID id = fundTransactionRepository.create(
                 request.fundId(),
                 request.investorId(),
