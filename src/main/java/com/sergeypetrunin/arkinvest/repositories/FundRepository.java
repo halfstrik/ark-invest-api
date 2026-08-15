@@ -50,4 +50,19 @@ public class FundRepository {
                 .stream()
                 .findFirst();
     }
+
+    @Transactional
+    public Optional<Fund> updateDescription(UUID id, String description) {
+        String sql = """
+            UPDATE fund
+            SET description = ?
+            WHERE id = ?
+        """;
+
+        int rowsUpdated = jdbcTemplate.update(sql, description, id);
+        if (rowsUpdated == 0) {
+            return Optional.empty();
+        }
+        return findById(id);
+    }
 }

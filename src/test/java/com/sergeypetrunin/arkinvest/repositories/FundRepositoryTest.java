@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -97,6 +98,36 @@ class FundRepositoryTest {
 
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () ->
                 repository.create(name, "Another description"));
+    }
+
+    @Test
+    void shouldUpdateDescription() {
+        var fund = new Fund(
+                UUID.randomUUID(),
+                "Innovation Fund",
+                "Original description"
+        );
+        jdbc.sql("""
+            INSERT INTO fund (id, name, description)
+            VALUES (:id, :name, :desc)
+            """)
+                .param("id", fund.id().toString())
+                .param("name", fund.name())
+                .param("desc", fund.description())
+                .update();
+
+        Optional<Fund> result = repository.updateDescription(fund.id(), "Updated description");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().description()).isEqualTo("Updated description");
+        assertThat(result.get().name()).isEqualTo("Innovation Fund");
+    }
+
+    @Test
+    void shouldReturnEmptyWhenUpdatingDescriptionForNonExistingFund() {
+        Optional<Fund> result = repository.updateDescription(UUID.randomUUID(), "Updated description");
+
+        assertThat(result).isEmpty();
     }
 
 }

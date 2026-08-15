@@ -19,4 +19,13 @@ Accept: application/json
 }
 
 ### Get fund by ID
-GET http://localhost:8080/funds/7cfcf4c1-54b2-45fb-a3f0-1c50a913fbe2
+GET http://localhost:8080/funds/a0e2e16c-0223-4970-a9c3-a8b3de6ca4e9
+
+### Update fund's description
+PUT http://localhost:8080/funds/a0e2e16c-0223-4970-a9c3-a8b3de6ca4e9
+Content-Type: application/json
+Accept: application/json
+
+{
+  "description": "New Life!!!"
+}

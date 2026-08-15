@@ -32,6 +32,10 @@ public class FundController {
             String description
     ) {}
 
+    public record UpdateFundDescriptionRequest(
+            String description
+    ) {}
+
     @PostMapping
     public ResponseEntity<Fund> createFund(@RequestBody CreateFundRequest request) {
         UUID id = fundRepository.create(request.name(), request.description());
@@ -48,6 +52,15 @@ public class FundController {
     @GetMapping("/{id}")
     public ResponseEntity<Fund> getFundById(@PathVariable UUID id) {
         Optional<Fund> fund = fundRepository.findById(id);
+        return fund.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Fund> updateFundDescription(
+            @PathVariable UUID id,
+            @RequestBody UpdateFundDescriptionRequest request) {
+        Optional<Fund> fund = fundRepository.updateDescription(id, request.description());
         return fund.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

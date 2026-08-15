@@ -12,9 +12,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(FundController.class)
@@ -71,6 +73,43 @@ public class FundControllerTests {
         when(fundRepository.findById(id)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/funds/{id}", id))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldUpdateFundDescription() throws Exception {
+        UUID id = UUID.randomUUID();
+        Fund existingFund = new Fund(id, "Innovation Fund", "Original description");
+        Fund updatedFund = new Fund(id, "Innovation Fund", "Updated description");
+
+        when(fundRepository.findById(id)).thenReturn(Optional.of(existingFund));
+        when(fundRepository.updateDescription(id, "Updated description")).thenReturn(Optional.of(updatedFund));
+
+        mockMvc.perform(put("/funds/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "description": "Updated description"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.name").value("Innovation Fund"))
+                .andExpect(jsonPath("$.description").value("Updated description"));
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingDescriptionForNonExistingFund() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(fundRepository.updateDescription(id, "Updated description")).thenReturn(Optional.empty());
+
+        mockMvc.perform(put("/funds/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "description": "Updated description"
+                                }
+                                """))
                 .andExpect(status().isNotFound());
     }
 
