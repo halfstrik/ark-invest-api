@@ -50,6 +50,9 @@ public class FundTransactionRepository {
         if (!existsFund(fundId)) {
             throw new IllegalArgumentException("Fund with id '" + fundId + "' does not exist");
         }
+        if (isFundDeleted(fundId)) {
+            throw new IllegalArgumentException("Fund with id '" + fundId + "' is deleted");
+        }
         if (!existsInvestor(investorId)) {
             throw new IllegalArgumentException("Investor with id '" + investorId + "' does not exist");
         }
@@ -77,9 +80,18 @@ public class FundTransactionRepository {
         return id;
     }
 
-    private boolean existsFund(UUID id) {
+    boolean existsFund(UUID id) {
         return jdbcClient.sql("SELECT 1 FROM fund WHERE id = :id")
                 .param("id", id)
+                .query(Integer.class)
+                .optional()
+                .isPresent();
+    }
+
+    boolean isFundDeleted(UUID id) {
+        return jdbcClient.sql("SELECT 1 FROM fund WHERE id = :id AND is_deleted = :is_deleted")
+                .param("id", id)
+                .param("is_deleted", true)
                 .query(Integer.class)
                 .optional()
                 .isPresent();

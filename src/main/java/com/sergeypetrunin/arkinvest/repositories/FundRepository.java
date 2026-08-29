@@ -18,7 +18,7 @@ public class FundRepository {
     private JdbcTemplate jdbcTemplate;
 
     public List<Fund> findAll() {
-        return jdbcTemplate.query("SELECT * FROM fund WHERE is_deleted = ?", DataClassRowMapper.newInstance(Fund.class), false);
+        return jdbcTemplate.query("SELECT * FROM fund", DataClassRowMapper.newInstance(Fund.class));
     }
 
     @Transactional
@@ -45,8 +45,8 @@ public class FundRepository {
     }
 
     public Optional<Fund> findById(UUID id) {
-        String sql = "SELECT * FROM fund WHERE id = ? AND is_deleted = ?";
-        return jdbcTemplate.query(sql, DataClassRowMapper.newInstance(Fund.class), id, false)
+        String sql = "SELECT * FROM fund WHERE id = ?";
+        return jdbcTemplate.query(sql, DataClassRowMapper.newInstance(Fund.class), id)
                 .stream()
                 .findFirst();
     }

@@ -90,6 +90,32 @@ class FundRepositoryTest {
     }
 
     @Test
+    void shouldFindDeletedFundById() {
+        var fund = new Fund(
+                UUID.randomUUID(),
+                "Innovation Fund",
+                "Focuses on disruptive innovation"
+        );
+        jdbc.sql("""
+            INSERT INTO fund (id, name, description)
+            VALUES (:id, :name, :desc)
+            """)
+                .param("id", fund.id().toString())
+                .param("name", fund.name())
+                .param("desc", fund.description())
+                .update();
+
+        jdbc.sql("UPDATE fund SET is_deleted = 1 WHERE id = :id")
+                .param("id", fund.id().toString())
+                .update();
+
+        var result = repository.findById(fund.id());
+
+        assertThat(result).isPresent();
+        assertThat(result.get().isDeleted()).isTrue();
+    }
+
+    @Test
     void shouldRejectDuplicateFundName() {
         String name = "Unique Fund";
         String description = "Original description";
@@ -150,8 +176,8 @@ class FundRepositoryTest {
 
         assertThat(result).isPresent();
         assertThat(result.get().isDeleted()).isTrue();
-        assertThat(repository.findById(fund.id())).isEmpty();
-        assertThat(repository.findAll()).isEmpty();
+        assertThat(repository.findById(fund.id())).isPresent();
+        assertThat(repository.findAll()).contains(result.get());
     }
 
     @Test

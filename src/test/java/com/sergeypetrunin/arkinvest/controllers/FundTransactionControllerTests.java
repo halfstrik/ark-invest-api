@@ -192,4 +192,35 @@ public class FundTransactionControllerTests {
                                 """.formatted(fundId, investorId)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturn400WhenCreatingTransactionForDeletedFund() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        doThrow(new IllegalArgumentException("Fund with id '" + fundId + "' is deleted"))
+                .when(fundTransactionRepository)
+                .create(
+                        eq(fundId),
+                        eq(investorId),
+                        eq(TransactionType.CONTRIBUTION),
+                        eq(TransactionEffect.CREDIT),
+                        any(BigDecimal.class),
+                        eq("Initial contribution")
+                );
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 100.50,
+                                    "description": "Initial contribution"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
 }

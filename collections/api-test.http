@@ -19,16 +19,19 @@ Accept: application/json
 }
 
 ### Get fund by ID
-GET http://localhost:8080/funds/a0e2e16c-0223-4970-a9c3-a8b3de6ca4e9
+GET http://localhost:8080/funds/140d80da-3c56-461a-b4d8-8791f01ac56d
 
 ### Update fund's description
-PUT http://localhost:8080/funds/a0e2e16c-0223-4970-a9c3-a8b3de6ca4e9
+PUT http://localhost:8080/funds/140d80da-3c56-461a-b4d8-8791f01ac56d
 Content-Type: application/json
 Accept: application/json
 
 {
   "description": "New Life!!!"
 }
+
+### Delete fund
+DELETE http://localhost:8080/funds/140d80da-3c56-461a-b4d8-8791f01ac56d
 
 ### Get list of all investors
 GET http://localhost:8080/investors
@@ -54,7 +57,7 @@ Accept: application/json
 }
 
 ### Get investor by ID
-GET http://localhost:8080/investors/134b8f44-fce3-4480-8617-d09f8bf3d1e8
+GET http://localhost:8080/investors/d6a4dc69-13f2-4620-98e1-4110d90dfe8e
 
 ### Get a list of all transactionsd
 GET http://localhost:8080/transactions
@@ -65,8 +68,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "fund_id": "48fe74c1-3268-41ea-9a8c-b2b76d7873f2",
-  "investor_id": "31311da4-cdc3-4e4a-80c1-ac30c1dcfd7d",
+  "fund_id": "97ef82d3-ce34-4487-9fa0-97665a3fe36f",
+  "investor_id": "d6a4dc69-13f2-4620-98e1-4110d90dfe8e",
   "transaction_type": "CONTRIBUTION",
   "transaction_effect": "DEBIT",
   "amount": 50.50,
@@ -74,4 +77,4 @@ Accept: application/json
 }
 
 ### Report for fund
-GET http://localhost:8080/reports/fund/48fe74c1-3268-41ea-9a8c-b2b76d7873f2
+GET http://localhost:8080/reports/fund/97ef82d3-ce34-4487-9fa0-97665a3fe36f

@@ -125,6 +125,76 @@ class FundTransactionRepositoryTest {
     }
 
     @Test
+    void existsFundShouldReturnTrueForDeletedFund() {
+        UUID fundId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", fundId.toString())
+                .param("name", "Test Fund")
+                .param("description", "A test fund")
+                .update();
+
+        jdbc.sql("UPDATE fund SET is_deleted = 1 WHERE id = :id")
+                .param("id", fundId.toString())
+                .update();
+
+        boolean result = repository.existsFund(fundId);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void isFundDeletedShouldReturnTrueForDeletedFund() {
+        UUID fundId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", fundId.toString())
+                .param("name", "Test Fund")
+                .param("description", "A test fund")
+                .update();
+
+        jdbc.sql("UPDATE fund SET is_deleted = 1 WHERE id = :id")
+                .param("id", fundId.toString())
+                .update();
+
+        boolean result = repository.isFundDeleted(fundId);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldRejectTransactionForDeletedFund() {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", fundId.toString())
+                .param("name", "Test Fund")
+                .param("description", "A test fund")
+                .update();
+
+        jdbc.sql("UPDATE fund SET is_deleted = 1 WHERE id = :id")
+                .param("id", fundId.toString())
+                .update();
+
+        jdbc.sql("INSERT INTO investor (id, name, email) VALUES (:id, :name, :email)")
+                .param("id", investorId.toString())
+                .param("name", "Test Investor")
+                .param("email", "test@example.com")
+                .update();
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () ->
+                repository.create(
+                        fundId,
+                        investorId,
+                        TransactionType.CONTRIBUTION,
+                        TransactionEffect.CREDIT,
+                        new BigDecimal("100.0"),
+                        "Contribution to deleted fund"
+                ));
+    }
+
+    @Test
     void shouldFindOnlyTransactionsForRequestedFund() {
         UUID firstFundId = UUID.randomUUID();
         UUID secondFundId = UUID.randomUUID();
