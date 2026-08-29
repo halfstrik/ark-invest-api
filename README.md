@@ -2,14 +2,15 @@
 
 The goal is to create simple but production ready CRUD API using Spring Boot and Java
 
-To run server using Maven:
-```shell
-./mvnw spring-boot:run
-```
-
 To run whole application with DB locally using Docker:
 ```shell
-docker compose up
+./mvnw clean package && docker compose up
+```
+
+Alternatively: to run API server using Maven, assuming DB is running separately
+adjustments to DB connection settings will be needed to make it fully work
+```shell
+./mvnw spring-boot:run
 ```
 
 ## Design decisions and considerations
