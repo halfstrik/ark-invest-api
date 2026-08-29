@@ -12,6 +12,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,7 +47,7 @@ public class FundTransactionControllerTests {
                 TransactionType.CONTRIBUTION,
                 TransactionEffect.CREDIT,
                 new BigDecimal("100.50"),
-                "2026-08-14",
+                OffsetDateTime.of(2026, 8, 14, 12, 0, 0, 0, java.time.ZoneOffset.UTC),
                 "Initial contribution"
         );
         when(fundTransactionRepository.findAll()).thenReturn(List.of(transaction));
@@ -59,7 +60,7 @@ public class FundTransactionControllerTests {
                 .andExpect(jsonPath("$[0].transaction_type").value("CONTRIBUTION"))
                 .andExpect(jsonPath("$[0].transaction_effect").value("CREDIT"))
                 .andExpect(jsonPath("$[0].amount").value(100.50))
-                .andExpect(jsonPath("$[0].transaction_date").value("2026-08-14"))
+                .andExpect(jsonPath("$[0].transaction_date").value("2026-08-14T12:00:00Z"))
                 .andExpect(jsonPath("$[0].description").value("Initial contribution"));
     }
 

@@ -6,6 +6,7 @@ import com.sergeypetrunin.arkinvest.models.TransactionType;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ class ReportCalculatorTests {
                         TransactionType.CONTRIBUTION,
                         TransactionEffect.CREDIT,
                         new BigDecimal("100.00"),
-                        "2026-08-15",
+                        OffsetDateTime.parse("2026-08-15T12:00:00Z"),
                         "Contribution"
                 ),
                 new FundTransaction(
@@ -36,7 +37,7 @@ class ReportCalculatorTests {
                         TransactionType.DISTRIBUTION,
                         TransactionEffect.DEBIT,
                         new BigDecimal("30.00"),
-                        "2026-08-15",
+                        OffsetDateTime.parse("2026-08-15T12:00:00Z"),
                         "Distribution"
                 ),
                 new FundTransaction(
@@ -46,7 +47,7 @@ class ReportCalculatorTests {
                         TransactionType.INTEREST_INCOME,
                         TransactionEffect.CREDIT,
                         new BigDecimal("10.00"),
-                        "2026-08-15",
+                        OffsetDateTime.parse("2026-08-15T12:00:00Z"),
                         "Interest"
                 )
         );

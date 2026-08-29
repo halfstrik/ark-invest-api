@@ -10,11 +10,9 @@ CREATE TABLE fund (
 CREATE TABLE investor (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(320) NOT NULL,
+    email VARCHAR(320) NOT NULL UNIQUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT uq_investor_email UNIQUE (email)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Since Sqlite does not support enums, we're storing them as VARCHAR(25)
@@ -30,26 +28,12 @@ CREATE TABLE investor (
 
 CREATE TABLE fund_transaction (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    fund_id UUID NOT NULL,
-    investor_id UUID NOT NULL,
-
+    fund_id UUID NOT NULL REFERENCES fund(id),
+    investor_id UUID NOT NULL REFERENCES investor(id),
     transaction_type VARCHAR(25) NOT NULL,
     transaction_effect VARCHAR(25) NOT NULL,
     amount NUMERIC(18,2) NOT NULL CHECK (amount > 0),
-    transaction_date DATE NOT NULL,
-
+    transaction_date TIMESTAMP WITH TIME ZONE NOT NULL,
     description TEXT,
-
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT fk_transaction_fund
-        FOREIGN KEY (fund_id)
-            REFERENCES fund(id)
-            ON DELETE RESTRICT,
-
-    CONSTRAINT fk_transaction_investor
-        FOREIGN KEY (investor_id)
-            REFERENCES investor(id)
-            ON DELETE RESTRICT
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

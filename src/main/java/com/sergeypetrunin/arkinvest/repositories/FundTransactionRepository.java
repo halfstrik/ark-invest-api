@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,15 +29,28 @@ public class FundTransactionRepository {
     public List<FundTransaction> findAll() {
         return jdbcTemplate.query(
                 "SELECT * FROM fund_transaction",
-                DataClassRowMapper.newInstance(FundTransaction.class)
+                this::mapRow
         );
     }
 
     public List<FundTransaction> findByFundId(UUID fundId) {
         return jdbcTemplate.query(
                 "SELECT * FROM fund_transaction WHERE fund_id = ?",
-                DataClassRowMapper.newInstance(FundTransaction.class),
+                this::mapRow,
                 fundId
+        );
+    }
+
+    private FundTransaction mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new FundTransaction(
+                UUID.fromString(rs.getString("id")),
+                UUID.fromString(rs.getString("fund_id")),
+                UUID.fromString(rs.getString("investor_id")),
+                TransactionType.valueOf(rs.getString("transaction_type")),
+                TransactionEffect.valueOf(rs.getString("transaction_effect")),
+                rs.getBigDecimal("amount"),
+                OffsetDateTime.parse(rs.getString("transaction_date")),
+                rs.getString("description")
         );
     }
 
@@ -65,7 +81,7 @@ public class FundTransactionRepository {
             )
             VALUES (
                 :id, :fund_id, :investor_id, :transaction_type, :transaction_effect,
-                :amount, CURRENT_DATE, :description
+                :amount, :transaction_date, :description
             )
             """;
         jdbcClient.sql(sql)
@@ -75,6 +91,7 @@ public class FundTransactionRepository {
                 .param("transaction_type", transactionType.name())
                 .param("transaction_effect", transactionEffect.name())
                 .param("amount", amount)
+                .param("transaction_date", OffsetDateTime.now())
                 .param("description", description)
                 .update();
         return id;

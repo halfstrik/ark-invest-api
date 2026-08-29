@@ -19,7 +19,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,7 +73,7 @@ public class FundTransactionController {
                 request.transactionType(),
                 request.transactionEffect(),
                 request.amount(),
-                LocalDate.now().toString(),
+                OffsetDateTime.now(),
                 request.description()
         );
 

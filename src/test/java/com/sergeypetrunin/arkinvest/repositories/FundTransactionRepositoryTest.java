@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -57,7 +58,7 @@ class FundTransactionRepositoryTest {
                 TransactionType.CONTRIBUTION,
                 TransactionEffect.CREDIT,
                 new BigDecimal("100.5"),
-                "2026-08-14",
+                OffsetDateTime.of(2026, 8, 14, 12, 0, 0, 0, java.time.ZoneOffset.UTC),
                 "Initial contribution"
         );
 
@@ -75,7 +76,7 @@ class FundTransactionRepositoryTest {
                 .param("transaction_type", transaction.transactionType().name())
                 .param("transaction_effect", transaction.transactionEffect().name())
                 .param("amount", transaction.amount())
-                .param("transaction_date", transaction.transactionDate())
+                .param("transaction_date", transaction.transactionDate().toString())
                 .param("description", transaction.description())
                 .update();
 
@@ -122,6 +123,7 @@ class FundTransactionRepositoryTest {
         assertThat(transaction.amount()).isEqualByComparingTo(new BigDecimal("100.5"));
         assertThat(transaction.description()).isEqualTo("Initial contribution");
         assertThat(transaction.transactionDate()).isNotNull();
+        assertThat(transaction.transactionDate()).isBeforeOrEqualTo(OffsetDateTime.now());
     }
 
     @Test
