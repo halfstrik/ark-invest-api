@@ -65,4 +65,11 @@ public class FundController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Fund> softDeleteFund(@PathVariable UUID id) {
+        Optional<Fund> fund = fundRepository.softDelete(id);
+        return fund.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }

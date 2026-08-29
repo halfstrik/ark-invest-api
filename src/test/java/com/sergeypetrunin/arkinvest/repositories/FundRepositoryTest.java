@@ -130,4 +130,58 @@ class FundRepositoryTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void shouldSoftDeleteFund() {
+        var fund = new Fund(
+                UUID.randomUUID(),
+                "Innovation Fund",
+                "Focuses on disruptive innovation"
+        );
+        jdbc.sql("""
+            INSERT INTO fund (id, name, description)
+            VALUES (:id, :name, :desc)
+            """)
+                .param("id", fund.id().toString())
+                .param("name", fund.name())
+                .param("desc", fund.description())
+                .update();
+
+        Optional<Fund> result = repository.softDelete(fund.id());
+
+        assertThat(result).isPresent();
+        assertThat(result.get().isDeleted()).isTrue();
+        assertThat(repository.findById(fund.id())).isEmpty();
+        assertThat(repository.findAll()).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenSoftDeletingNonExistingFund() {
+        Optional<Fund> result = repository.softDelete(UUID.randomUUID());
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenSoftDeletingAlreadyDeletedFund() {
+        var fund = new Fund(
+                UUID.randomUUID(),
+                "Innovation Fund",
+                "Focuses on disruptive innovation"
+        );
+        jdbc.sql("""
+            INSERT INTO fund (id, name, description)
+            VALUES (:id, :name, :desc)
+            """)
+                .param("id", fund.id().toString())
+                .param("name", fund.name())
+                .param("desc", fund.description())
+                .update();
+
+        repository.softDelete(fund.id());
+
+        Optional<Fund> result = repository.softDelete(fund.id());
+
+        assertThat(result).isEmpty();
+    }
+
 }

@@ -18,7 +18,7 @@ public class FundRepository {
     private JdbcTemplate jdbcTemplate;
 
     public List<Fund> findAll() {
-        return jdbcTemplate.query("SELECT * FROM fund", DataClassRowMapper.newInstance(Fund.class));
+        return jdbcTemplate.query("SELECT * FROM fund WHERE is_deleted = ?", DataClassRowMapper.newInstance(Fund.class), false);
     }
 
     @Transactional
@@ -30,14 +30,14 @@ public class FundRepository {
         // 4 If no matching name exists, the SELECT returns one row, and the INSERT inserts it. jdbcTemplate.update(...) returns 1.
         UUID id = UUID.randomUUID();
         String sql = """
-            INSERT INTO fund (id, name, description)
-            SELECT ?, ?, ?
+            INSERT INTO fund (id, name, description, is_deleted)
+            SELECT ?, ?, ?, ?
             WHERE NOT EXISTS (
-                SELECT 1 FROM fund WHERE name = ?
+                SELECT 1 FROM fund WHERE name = ? AND is_deleted = ?
             )
         """;
 
-        int rowsInserted = jdbcTemplate.update(sql, id, name, description, name);
+        int rowsInserted = jdbcTemplate.update(sql, id, name, description, false, name, false);
         if (rowsInserted == 0) {
             throw new IllegalArgumentException("Fund with name '" + name + "' already exists");
         }
@@ -45,8 +45,8 @@ public class FundRepository {
     }
 
     public Optional<Fund> findById(UUID id) {
-        String sql = "SELECT * FROM fund WHERE id = ?";
-        return jdbcTemplate.query(sql, DataClassRowMapper.newInstance(Fund.class), id)
+        String sql = "SELECT * FROM fund WHERE id = ? AND is_deleted = ?";
+        return jdbcTemplate.query(sql, DataClassRowMapper.newInstance(Fund.class), id, false)
                 .stream()
                 .findFirst();
     }
@@ -56,13 +56,32 @@ public class FundRepository {
         String sql = """
             UPDATE fund
             SET description = ?
-            WHERE id = ?
+            WHERE id = ? AND is_deleted = ?
         """;
 
-        int rowsUpdated = jdbcTemplate.update(sql, description, id);
+        int rowsUpdated = jdbcTemplate.update(sql, description, id, false);
         if (rowsUpdated == 0) {
             return Optional.empty();
         }
         return findById(id);
+    }
+
+    @Transactional
+    public Optional<Fund> softDelete(UUID id) {
+        String updateSql = """
+            UPDATE fund
+            SET is_deleted = ?
+            WHERE id = ? AND is_deleted = ?
+        """;
+
+        int rowsUpdated = jdbcTemplate.update(updateSql, true, id, false);
+        if (rowsUpdated == 0) {
+            return Optional.empty();
+        }
+
+        String selectSql = "SELECT * FROM fund WHERE id = ?";
+        return jdbcTemplate.query(selectSql, DataClassRowMapper.newInstance(Fund.class), id)
+                .stream()
+                .findFirst();
     }
 }

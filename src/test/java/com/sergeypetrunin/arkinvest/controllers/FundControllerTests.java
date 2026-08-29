@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -109,6 +110,47 @@ public class FundControllerTests {
                                     "description": "Updated description"
                                 }
                                 """))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingDescriptionForDeletedFund() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(fundRepository.updateDescription(id, "Updated description")).thenReturn(Optional.empty());
+
+        mockMvc.perform(put("/funds/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "description": "Updated description"
+                                }
+                                """))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldSoftDeleteFund() throws Exception {
+        UUID id = UUID.randomUUID();
+        Fund existingFund = new Fund(id, "Innovation Fund", "Focuses on disruptive innovation", false);
+        Fund deletedFund = new Fund(id, "Innovation Fund", "Focuses on disruptive innovation", true);
+
+        when(fundRepository.findById(id)).thenReturn(Optional.of(existingFund));
+        when(fundRepository.softDelete(id)).thenReturn(Optional.of(deletedFund));
+
+        mockMvc.perform(delete("/funds/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.name").value("Innovation Fund"))
+                .andExpect(jsonPath("$.description").value("Focuses on disruptive innovation"))
+                .andExpect(jsonPath("$.is_deleted").value(true));
+    }
+
+    @Test
+    void shouldReturn404WhenSoftDeletingNonExistingFund() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(fundRepository.softDelete(id)).thenReturn(Optional.empty());
+
+        mockMvc.perform(delete("/funds/{id}", id))
                 .andExpect(status().isNotFound());
     }
 
