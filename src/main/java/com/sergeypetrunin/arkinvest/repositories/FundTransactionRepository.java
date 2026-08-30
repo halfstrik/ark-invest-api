@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +42,20 @@ public class FundTransactionRepository {
         );
     }
 
+    private static Instant parseInstant(String value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Instant.parse(value);
+        } catch (java.time.format.DateTimeParseException e) {
+            return java.time.OffsetDateTime.parse(
+                    value.replace(" ", "T"),
+                    java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            ).toInstant();
+        }
+    }
+
     private FundTransaction mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new FundTransaction(
                 UUID.fromString(rs.getString("id")),
@@ -48,7 +64,7 @@ public class FundTransactionRepository {
                 TransactionType.valueOf(rs.getString("transaction_type")),
                 TransactionEffect.valueOf(rs.getString("transaction_effect")),
                 rs.getBigDecimal("amount"),
-                Instant.parse(rs.getString("transaction_date")),
+                parseInstant(rs.getString("transaction_date")),
                 rs.getString("description")
         );
     }
@@ -71,6 +87,9 @@ public class FundTransactionRepository {
         if (!existsInvestor(investorId)) {
             throw new IllegalArgumentException("Investor with id '" + investorId + "' does not exist");
         }
+        if (isInvestorDeleted(investorId)) {
+            throw new IllegalArgumentException("Investor with id '" + investorId + "' is deleted");
+        }
 
         UUID id = UUID.randomUUID();
         String sql = """
@@ -90,7 +109,7 @@ public class FundTransactionRepository {
                 .param("transaction_type", transactionType.name())
                 .param("transaction_effect", transactionEffect.name())
                 .param("amount", amount)
-                .param("transaction_date", Instant.now())
+                .param("transaction_date", OffsetDateTime.ofInstant(Instant.now(), ZoneOffset.UTC))
                 .param("description", description)
                 .update();
         return id;
@@ -116,6 +135,15 @@ public class FundTransactionRepository {
     private boolean existsInvestor(UUID id) {
         return jdbcClient.sql("SELECT 1 FROM investor WHERE id = :id")
                 .param("id", id)
+                .query(Integer.class)
+                .optional()
+                .isPresent();
+    }
+
+    private boolean isInvestorDeleted(UUID id) {
+        return jdbcClient.sql("SELECT 1 FROM investor WHERE id = :id AND is_deleted = :is_deleted")
+                .param("id", id)
+                .param("is_deleted", true)
                 .query(Integer.class)
                 .optional()
                 .isPresent();

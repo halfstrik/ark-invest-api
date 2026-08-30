@@ -43,7 +43,7 @@ public class InvestorController {
     @PostMapping
     public ResponseEntity<Investor> createInvestor(@Valid @RequestBody CreateInvestorRequest request) {
         UUID id = investorRepository.create(request.name(), request.email());
-        Investor investor = new Investor(id, request.name(), request.email());
+        Investor investor = new Investor(id, request.name(), request.email(), false);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .path("/{id}")
@@ -51,5 +51,12 @@ public class InvestorController {
                 .toUri();
 
         return ResponseEntity.created(location).body(investor);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Investor> softDeleteInvestor(@PathVariable UUID id) {
+        return investorRepository.softDelete(id)
+                .map(investor -> new ResponseEntity<>(investor, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

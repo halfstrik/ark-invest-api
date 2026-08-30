@@ -32,8 +32,8 @@ public class InvestorRepository {
     public UUID create(String name, String email) {
         UUID id = UUID.randomUUID();
         String sql = """
-            INSERT INTO investor (id, name, email)
-            SELECT ?, ?, ?
+            INSERT INTO investor (id, name, email, is_deleted)
+            SELECT ?, ?, ?, false
             WHERE NOT EXISTS (
                 SELECT 1 FROM investor WHERE email = ?
             )
@@ -44,5 +44,21 @@ public class InvestorRepository {
             throw new IllegalArgumentException("Investor with email '" + email + "' already exists");
         }
         return id;
+    }
+
+    @Transactional
+    public Optional<Investor> softDelete(UUID id) {
+        String selectSql = "SELECT * FROM investor WHERE id = ? AND is_deleted = false";
+        Optional<Investor> existing = jdbcTemplate.query(selectSql, DataClassRowMapper.newInstance(Investor.class), id)
+                .stream()
+                .findFirst();
+
+        if (existing.isEmpty()) {
+            return Optional.empty();
+        }
+
+        String updateSql = "UPDATE investor SET is_deleted = true WHERE id = ?";
+        jdbcTemplate.update(updateSql, id);
+        return existing.map(investor -> new Investor(investor.id(), investor.name(), investor.email(), true));
     }
 }

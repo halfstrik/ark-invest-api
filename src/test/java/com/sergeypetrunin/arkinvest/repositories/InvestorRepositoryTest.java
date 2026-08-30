@@ -32,7 +32,8 @@ class InvestorRepositoryTest {
         var investor = new Investor(
                 UUID.randomUUID(),
                 "Sergey Petrunin",
-                "sergey@example.com"
+                "sergey@example.com",
+                false
         );
         jdbc.sql("""
             INSERT INTO investor (id, name, email)
@@ -57,7 +58,7 @@ class InvestorRepositoryTest {
 
         var result = repository.findAll();
 
-        assertThat(result).containsExactly(new Investor(id, name, email));
+        assertThat(result).containsExactly(new Investor(id, name, email, false));
     }
 
     @Test
@@ -80,7 +81,7 @@ class InvestorRepositoryTest {
         var result = repository.findById(id);
 
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(new Investor(id, name, email));
+        assertThat(result.get()).isEqualTo(new Investor(id, name, email, false));
     }
 
     @Test
@@ -88,6 +89,37 @@ class InvestorRepositoryTest {
         UUID id = UUID.randomUUID();
 
         var result = repository.findById(id);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldSoftDeleteInvestor() {
+        UUID id = repository.create("To Delete", "delete@example.com");
+
+        var deleted = repository.softDelete(id);
+
+        assertThat(deleted).isPresent();
+        assertThat(deleted.get().isDeleted()).isTrue();
+        assertThat(repository.findById(id).get().isDeleted()).isTrue();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenSoftDeletingNonExistingInvestor() {
+        UUID id = UUID.randomUUID();
+
+        var result = repository.softDelete(id);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenSoftDeletingAlreadyDeletedInvestor() {
+        UUID id = repository.create("To Delete", "already-deleted@example.com");
+
+        repository.softDelete(id);
+
+        var result = repository.softDelete(id);
 
         assertThat(result).isEmpty();
     }
