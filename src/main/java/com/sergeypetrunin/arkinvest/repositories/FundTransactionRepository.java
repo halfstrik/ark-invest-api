@@ -48,7 +48,7 @@ public class FundTransactionRepository {
                 TransactionType.valueOf(rs.getString("transaction_type")),
                 TransactionEffect.valueOf(rs.getString("transaction_effect")),
                 rs.getBigDecimal("amount"),
-                rs.getTimestamp("transaction_date").toInstant(),
+                Instant.parse(rs.getString("transaction_date")),
                 rs.getString("description")
         );
     }

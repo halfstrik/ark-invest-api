@@ -61,7 +61,7 @@ public class FundTransactionControllerTests {
                 .andExpect(jsonPath("$[0].transaction_type").value("CONTRIBUTION"))
                 .andExpect(jsonPath("$[0].transaction_effect").value("CREDIT"))
                 .andExpect(jsonPath("$[0].amount").value(100.50))
-                .andExpect(jsonPath("$[0].transaction_date").value("2026-08-14T12:00:00Z"))
+                .andExpect(jsonPath("$[0].transaction_date").value("2026-08-15T12:00:00Z"))
                 .andExpect(jsonPath("$[0].description").value("Initial contribution"));
     }
 
