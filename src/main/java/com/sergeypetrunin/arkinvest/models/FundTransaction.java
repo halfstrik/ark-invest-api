@@ -1,6 +1,5 @@
 package com.sergeypetrunin.arkinvest.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
