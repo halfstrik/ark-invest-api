@@ -6,4 +6,5 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-SQL
     GRANT ALL PRIVILEGES ON DATABASE ark_invest_db TO $POSTGRES_USER;
 SQL
 
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname ark_invest_db -f /docker-entrypoint-initdb.d/create_tables.sql
+cat /tmp/create_tables.sql /tmp/pre_seed.sql > /tmp/init.sql
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname ark_invest_db -f /tmp/init.sql

@@ -12,7 +12,8 @@ services:
     image: postgres:16-alpine
     volumes:
       - ./db/create_test_db.sh:/docker-entrypoint-initdb.d/create_test_db.sh
-      - ./db/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./db/create_tables.sql:/tmp/create_tables.sql
+      - ./db/create_tables.sql:/tmp/pre_seed.sql
       - data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: $DB_USER

@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class ReportControllerTests {
                 TransactionType.CONTRIBUTION,
                 TransactionEffect.CREDIT,
                 new BigDecimal("100.00"),
-                OffsetDateTime.parse("2026-08-15T12:00:00Z"),
+                Instant.parse("2026-08-15T12:00:00Z"),
                 "Initial contribution"
         );
 
@@ -52,7 +53,7 @@ public class ReportControllerTests {
                 TransactionType.INTEREST_INCOME,
                 TransactionEffect.CREDIT,
                 new BigDecimal("50.00"),
-                OffsetDateTime.parse("2026-08-15T12:00:00Z"),
+                Instant.parse("2026-08-15T12:00:00Z"),
                 "Interest income"
         );
 
@@ -63,7 +64,7 @@ public class ReportControllerTests {
                 TransactionType.DISTRIBUTION,
                 TransactionEffect.DEBIT,
                 new BigDecimal("25.00"),
-                OffsetDateTime.parse("2026-08-15T12:00:00Z"),
+                Instant.parse("2026-08-15T12:00:00Z"),
                 "Distribution"
         );
 

@@ -4,7 +4,6 @@ import com.sergeypetrunin.arkinvest.models.FundTransaction;
 import com.sergeypetrunin.arkinvest.models.TransactionEffect;
 import com.sergeypetrunin.arkinvest.models.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +48,7 @@ public class FundTransactionRepository {
                 TransactionType.valueOf(rs.getString("transaction_type")),
                 TransactionEffect.valueOf(rs.getString("transaction_effect")),
                 rs.getBigDecimal("amount"),
-                OffsetDateTime.parse(rs.getString("transaction_date")),
+                Instant.parse(rs.getString("transaction_date")),
                 rs.getString("description")
         );
     }
@@ -91,7 +90,7 @@ public class FundTransactionRepository {
                 .param("transaction_type", transactionType.name())
                 .param("transaction_effect", transactionEffect.name())
                 .param("amount", amount)
-                .param("transaction_date", OffsetDateTime.now())
+                .param("transaction_date", Instant.now())
                 .param("description", description)
                 .update();
         return id;

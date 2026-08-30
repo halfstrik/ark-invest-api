@@ -33,7 +33,7 @@ CREATE TABLE fund_transaction (
     transaction_type VARCHAR(25) NOT NULL,
     transaction_effect VARCHAR(25) NOT NULL,
     amount NUMERIC(18,2) NOT NULL CHECK (amount > 0),
-    transaction_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    transaction_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     description TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
