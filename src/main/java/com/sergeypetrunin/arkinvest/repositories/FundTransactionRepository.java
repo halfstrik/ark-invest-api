@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,12 +40,21 @@ public class FundTransactionRepository {
         );
     }
 
-    public List<FundTransaction> findByFundId(UUID fundId) {
-        return jdbcTemplate.query(
-                "SELECT * FROM fund_transaction WHERE fund_id = ?",
-                this::mapRow,
-                fundId
-        );
+    public List<FundTransaction> findByFundId(UUID fundId, Instant fromDate, Instant toDate) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM fund_transaction WHERE fund_id = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(fundId);
+
+        if (fromDate != null) {
+            sql.append(" AND transaction_date >= ?");
+            params.add(OffsetDateTime.ofInstant(fromDate, ZoneOffset.UTC));
+        }
+        if (toDate != null) {
+            sql.append(" AND transaction_date <= ?");
+            params.add(OffsetDateTime.ofInstant(toDate, ZoneOffset.UTC));
+        }
+
+        return jdbcTemplate.query(sql.toString(), this::mapRow, params.toArray());
     }
 
     private static Instant parseInstant(String value) {

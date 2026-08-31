@@ -25,7 +25,7 @@ INSERT INTO fund_transaction (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid,
     '22222222-2222-2222-2222-222222222222'::uuid,
     '33333333-3333-3333-3333-333333333333'::uuid,
-    'CONTRIBUTION', 'CREDIT', 1000.00, CURRENT_DATE + INTERVAL '12 hours', 'Initial contribution'
+    'CONTRIBUTION', 'CREDIT', 1000.00, CURRENT_DATE - INTERVAL '3 days', 'Initial contribution'
 );
 
 INSERT INTO fund_transaction (
@@ -35,7 +35,7 @@ INSERT INTO fund_transaction (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid,
     '22222222-2222-2222-2222-222222222222'::uuid,
     '33333333-3333-3333-3333-333333333333'::uuid,
-    'DISTRIBUTION', 'DEBIT', 100.00, CURRENT_DATE + INTERVAL '12 hours 30 minutes', 'Quarterly distribution'
+    'DISTRIBUTION', 'DEBIT', 100.00, CURRENT_DATE - INTERVAL '2 days', 'Quarterly distribution'
 );
 
 INSERT INTO fund_transaction (
@@ -45,5 +45,5 @@ INSERT INTO fund_transaction (
     'cccccccc-cccc-cccc-cccc-cccccccccccc'::uuid,
     '22222222-2222-2222-2222-222222222222'::uuid,
     '44444444-4444-4444-4444-444444444444'::uuid,
-    'INTEREST_INCOME', 'CREDIT', 50.00, CURRENT_DATE + INTERVAL '13 hours', 'Interest income'
+    'INTEREST_INCOME', 'CREDIT', 50.00, CURRENT_DATE + INTERVAL '12 hours', 'Interest income'
 );

@@ -94,3 +94,6 @@ Accept: application/json
 
 ### Report for fund
 GET http://localhost:8080/reports/fund/22222222-2222-2222-2222-222222222222
+
+### Report for fund with date range
+GET http://localhost:8080/reports/fund/22222222-2222-2222-2222-222222222222?from_date=2026-07-30T00:00:00Z&to_date=2026-07-31T23:59:59Z
