@@ -104,6 +104,138 @@ public class FundTransactionControllerTests {
     }
 
     @Test
+    void shouldReturn400WhenFundIdIsMissing() throws Exception {
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 100.50,
+                                    "description": "Missing fund id"
+                                }
+                                """.formatted(investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenInvestorIdIsMissing() throws Exception {
+        UUID fundId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 100.50,
+                                    "description": "Missing investor id"
+                                }
+                                """.formatted(fundId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenTransactionTypeIsMissing() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 100.50,
+                                    "description": "Missing transaction type"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenTransactionEffectIsMissing() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "amount": 100.50,
+                                    "description": "Missing transaction effect"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenAmountIsMissing() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "description": "Missing amount"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenAmountIsZero() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 0,
+                                    "description": "Zero amount"
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenDescriptionIsMissing() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        mockMvc.perform(post("/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fund_id": "%s",
+                                    "investor_id": "%s",
+                                    "transaction_type": "CONTRIBUTION",
+                                    "transaction_effect": "CREDIT",
+                                    "amount": 100.50
+                                }
+                                """.formatted(fundId, investorId)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldReturn400WhenCreatingTransactionForNonExistentFund() throws Exception {
         UUID fundId = UUID.randomUUID();
         UUID investorId = UUID.randomUUID();
