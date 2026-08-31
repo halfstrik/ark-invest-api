@@ -82,4 +82,39 @@ class FundPermissionRepositoryTest {
 
         assertThat(repository.hasPermission(fundId, investorId)).isFalse();
     }
+
+    @Test
+    void shouldDeletePermission() {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", fundId.toString())
+                .param("name", "Test Fund")
+                .param("description", "A test fund")
+                .update();
+
+        jdbc.sql("INSERT INTO investor (id, name, email) VALUES (:id, :name, :email)")
+                .param("id", investorId.toString())
+                .param("name", "Test Investor")
+                .param("email", "test@example.com")
+                .update();
+
+        repository.create(fundId, investorId);
+
+        boolean deleted = repository.delete(fundId, investorId);
+
+        assertThat(deleted).isTrue();
+        assertThat(repository.hasPermission(fundId, investorId)).isFalse();
+    }
+
+    @Test
+    void shouldReturnFalseWhenDeletingNonExistingPermission() {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        boolean deleted = repository.delete(fundId, investorId);
+
+        assertThat(deleted).isFalse();
+    }
 }

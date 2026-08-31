@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -62,5 +63,25 @@ public class FundPermissionControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.fund_id").value(fundId.toString()))
                 .andExpect(jsonPath("$.investor_id").value(investorId.toString()));
+    }
+
+    @Test
+    void shouldDeleteFundPermission() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+        when(fundPermissionRepository.delete(fundId, investorId)).thenReturn(true);
+
+        mockMvc.perform(delete("/fund-permissions/" + fundId + "/" + investorId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingFundPermission() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+        when(fundPermissionRepository.delete(fundId, investorId)).thenReturn(false);
+
+        mockMvc.perform(delete("/fund-permissions/" + fundId + "/" + investorId))
+                .andExpect(status().isNotFound());
     }
 }

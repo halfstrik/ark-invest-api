@@ -6,6 +6,8 @@ import com.sergeypetrunin.arkinvest.repositories.FundPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,5 +41,16 @@ public class FundPermissionController {
         return ResponseEntity.status(created ? HttpStatus.CREATED : HttpStatus.OK)
                 .location(location)
                 .body(permission);
+    }
+
+    @DeleteMapping("/{fundId}/{investorId}")
+    public ResponseEntity<Void> deletePermission(
+            @PathVariable UUID fundId,
+            @PathVariable UUID investorId
+    ) {
+        boolean deleted = fundPermissionRepository.delete(fundId, investorId);
+        return deleted
+                ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

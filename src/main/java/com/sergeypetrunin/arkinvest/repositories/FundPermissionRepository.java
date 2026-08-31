@@ -37,4 +37,15 @@ public class FundPermissionRepository {
                 .update();
         return true;
     }
+
+    public boolean delete(UUID fundId, UUID investorId) {
+        int rowsDeleted = jdbcClient.sql("""
+                DELETE FROM fund_permission
+                WHERE fund_id = :fund_id AND investor_id = :investor_id
+                """)
+                .param("fund_id", fundId)
+                .param("investor_id", investorId)
+                .update();
+        return rowsDeleted > 0;
+    }
 }

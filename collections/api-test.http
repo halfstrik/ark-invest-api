@@ -75,6 +75,9 @@ Accept: application/json
   "investor_id": "33333333-3333-3333-3333-333333333333"
 }
 
+### Delete permission
+DELETE http://localhost:8080/fund-permissions/22222222-2222-2222-2222-222222222222/33333333-3333-3333-3333-333333333333
+
 ### Create new transaction
 POST http://localhost:8080/transactions
 Content-Type: application/json
