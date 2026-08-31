@@ -5,6 +5,7 @@ import com.sergeypetrunin.arkinvest.repositories.InvestorRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -73,6 +74,68 @@ public class InvestorControllerTests {
                                 }
                                 """))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void shouldReturnConflictWhenEmailAlreadyExistsAtDatabaseLevel() throws Exception {
+        when(investorRepository.create("Duplicate Investor", "duplicate@example.com"))
+                .thenThrow(new DataIntegrityViolationException("duplicate key value violates unique constraint"));
+
+        mockMvc.perform(post("/investors")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "Duplicate Investor",
+                                    "email": "duplicate@example.com"
+                                }
+                                """))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenNameIsNull() throws Exception {
+        when(investorRepository.create(null, "noname@example.com"))
+                .thenThrow(new DataIntegrityViolationException("null value in column \"name\" violates not-null constraint"));
+
+        mockMvc.perform(post("/investors")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "email": "noname@example.com"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenNameIsBlank() throws Exception {
+        when(investorRepository.create("", "blank@example.com"))
+                .thenThrow(new DataIntegrityViolationException("null value in column \"name\" violates not-null constraint"));
+
+        mockMvc.perform(post("/investors")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "",
+                                    "email": "blank@example.com"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenEmailIsNull() throws Exception {
+        when(investorRepository.create("No Email", null))
+                .thenThrow(new DataIntegrityViolationException("null value in column \"email\" violates not-null constraint"));
+
+        mockMvc.perform(post("/investors")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "No Email"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
