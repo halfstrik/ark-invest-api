@@ -23,4 +23,18 @@ public class FundPermissionRepository {
                 .optional()
                 .isPresent();
     }
+
+    public boolean create(UUID fundId, UUID investorId) {
+        if (hasPermission(fundId, investorId)) {
+            return false;
+        }
+        jdbcClient.sql("""
+                INSERT INTO fund_permission (fund_id, investor_id)
+                VALUES (:fund_id, :investor_id)
+                """)
+                .param("fund_id", fundId)
+                .param("investor_id", investorId)
+                .update();
+        return true;
+    }
 }
