@@ -5,9 +5,15 @@ import com.sergeypetrunin.arkinvest.models.FundTransaction;
 import com.sergeypetrunin.arkinvest.models.TransactionEffect;
 import com.sergeypetrunin.arkinvest.models.TransactionType;
 import com.sergeypetrunin.arkinvest.repositories.FundTransactionRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,17 +47,27 @@ public class FundTransactionController {
     public void handleIllegalArgument(IllegalArgumentException e) {
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public void handleValidation(MethodArgumentNotValidException e) {
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public void handleNotReadable(HttpMessageNotReadableException e) {
+    }
+
     public record CreateFundTransactionRequest(
-            @JsonProperty("fund_id") UUID fundId,
-            @JsonProperty("investor_id") UUID investorId,
-            @JsonProperty("transaction_type") TransactionType transactionType,
-            @JsonProperty("transaction_effect") TransactionEffect transactionEffect,
-            BigDecimal amount,
-            String description
+            @JsonProperty("fund_id") @NotNull UUID fundId,
+            @JsonProperty("investor_id") @NotNull UUID investorId,
+            @JsonProperty("transaction_type") @NotNull TransactionType transactionType,
+            @JsonProperty("transaction_effect") @NotNull TransactionEffect transactionEffect,
+            @NotNull @Positive BigDecimal amount,
+            @NotBlank String description
     ) {}
 
     @PostMapping
-    public ResponseEntity<FundTransaction> createTransaction(@RequestBody CreateFundTransactionRequest request) {
+    public ResponseEntity<FundTransaction> createTransaction(@Valid @RequestBody CreateFundTransactionRequest request) {
         if (request.amount() == null || request.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Transaction amount must be positive");
         }
