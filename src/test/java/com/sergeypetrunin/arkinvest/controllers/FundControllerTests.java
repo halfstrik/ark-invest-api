@@ -55,6 +55,54 @@ public class FundControllerTests {
     }
 
     @Test
+    void shouldReturn400WhenFundNameIsBlank() throws Exception {
+        mockMvc.perform(post("/funds")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "   ",
+                                    "description": "A fund focused on growth stocks"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenFundNameIsMissing() throws Exception {
+        mockMvc.perform(post("/funds")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "description": "A fund focused on growth stocks"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenRequestBodyIsMissing() throws Exception {
+        mockMvc.perform(post("/funds")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnConflictWhenFundNameAlreadyExists() throws Exception {
+        when(fundRepository.create("Existing Fund", "Description"))
+                .thenThrow(new IllegalArgumentException("Fund with name 'Existing Fund' already exists"));
+
+        mockMvc.perform(post("/funds")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "Existing Fund",
+                                    "description": "Description"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldGetFundByIdWhenExists() throws Exception {
         UUID id = UUID.randomUUID();
         Fund fund = new Fund(id, "Innovation Fund", "Focuses on disruptive innovation");
@@ -96,6 +144,15 @@ public class FundControllerTests {
                 .andExpect(jsonPath("$.id").value(id.toString()))
                 .andExpect(jsonPath("$.name").value("Innovation Fund"))
                 .andExpect(jsonPath("$.description").value("Updated description"));
+    }
+
+    @Test
+    void shouldReturn400WhenUpdatingDescriptionWithMissingBody() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(put("/funds/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

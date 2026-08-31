@@ -33,11 +33,11 @@ public class FundRepository {
             INSERT INTO fund (id, name, description, is_deleted)
             SELECT ?, ?, ?, ?
             WHERE NOT EXISTS (
-                SELECT 1 FROM fund WHERE name = ? AND is_deleted = ?
+                SELECT 1 FROM fund WHERE name = ?
             )
         """;
 
-        int rowsInserted = jdbcTemplate.update(sql, id, name, description, false, name, false);
+        int rowsInserted = jdbcTemplate.update(sql, id, name, description, false, name);
         if (rowsInserted == 0) {
             throw new IllegalArgumentException("Fund with name '" + name + "' already exists");
         }

@@ -2,10 +2,14 @@ package com.sergeypetrunin.arkinvest.controllers;
 
 import com.sergeypetrunin.arkinvest.models.Fund;
 import com.sergeypetrunin.arkinvest.repositories.FundRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -28,6 +32,7 @@ public class FundController {
     }
 
     public record CreateFundRequest(
+            @NotBlank
             String name,
             String description
     ) {}
@@ -37,7 +42,7 @@ public class FundController {
     ) {}
 
     @PostMapping
-    public ResponseEntity<Fund> createFund(@RequestBody CreateFundRequest request) {
+    public ResponseEntity<Fund> createFund(@Valid @RequestBody CreateFundRequest request) {
         UUID id = fundRepository.create(request.name(), request.description());
         Fund fund = new Fund(id, request.name(), request.description());
 
@@ -59,7 +64,7 @@ public class FundController {
     @PutMapping("/{id}")
     public ResponseEntity<Fund> updateFundDescription(
             @PathVariable UUID id,
-            @RequestBody UpdateFundDescriptionRequest request) {
+            @Valid @RequestBody UpdateFundDescriptionRequest request) {
         Optional<Fund> fund = fundRepository.updateDescription(id, request.description());
         return fund.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -70,6 +75,16 @@ public class FundController {
         Optional<Fund> fund = fundRepository.softDelete(id);
         return fund.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public void handleIllegalArgument(IllegalArgumentException e) {
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public void handleDataIntegrityViolation(DataIntegrityViolationException e) {
     }
 
 }
