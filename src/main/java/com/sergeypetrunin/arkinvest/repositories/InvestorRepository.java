@@ -57,8 +57,8 @@ public class InvestorRepository {
             return Optional.empty();
         }
 
-        String updateSql = "UPDATE investor SET is_deleted = true WHERE id = ?";
-        jdbcTemplate.update(updateSql, id);
+        jdbcTemplate.update("UPDATE investor SET is_deleted = true WHERE id = ? AND is_deleted = false", id);
+
         return existing.map(investor -> new Investor(investor.id(), investor.name(), investor.email(), true));
     }
 }
