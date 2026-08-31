@@ -261,12 +261,60 @@ class FundTransactionRepositoryTest {
                 "Second fund contribution"
         );
 
-        var result = repository.findByFundId(firstFundId, null, null);
+        var result = repository.findByFundId(firstFundId, null, null, null);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).id()).isEqualTo(firstTransactionId);
         assertThat(result.get(0).fundId()).isEqualTo(firstFundId);
         assertThat(result.get(0).description()).isEqualTo("First fund contribution");
+    }
+
+    @Test
+    void shouldFilterByTransactionEffect() {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", fundId.toString())
+                .param("name", "Test Fund")
+                .param("description", "A test fund")
+                .update();
+
+        jdbc.sql("INSERT INTO investor (id, name, email) VALUES (:id, :name, :email)")
+                .param("id", investorId.toString())
+                .param("name", "Test Investor")
+                .param("email", "test@example.com")
+                .update();
+
+        grantPermission(fundId, investorId);
+
+        repository.create(
+                fundId,
+                investorId,
+                TransactionType.CONTRIBUTION,
+                TransactionEffect.CREDIT,
+                new BigDecimal("100.0"),
+                "Credit contribution"
+        );
+
+        repository.create(
+                fundId,
+                investorId,
+                TransactionType.DISTRIBUTION,
+                TransactionEffect.DEBIT,
+                new BigDecimal("25.0"),
+                "Debit distribution"
+        );
+
+        var creditResults = repository.findByFundId(fundId, null, null, TransactionEffect.CREDIT);
+        var debitResults = repository.findByFundId(fundId, null, null, TransactionEffect.DEBIT);
+        var allResults = repository.findByFundId(fundId, null, null, null);
+
+        assertThat(creditResults).hasSize(1)
+                .allMatch(t -> t.transactionEffect() == TransactionEffect.CREDIT);
+        assertThat(debitResults).hasSize(1)
+                .allMatch(t -> t.transactionEffect() == TransactionEffect.DEBIT);
+        assertThat(allResults).hasSize(2);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.sergeypetrunin.arkinvest.controllers;
 import com.sergeypetrunin.arkinvest.business.ReportCalculator;
 import com.sergeypetrunin.arkinvest.models.FundReport;
 import com.sergeypetrunin.arkinvest.models.FundTransaction;
+import com.sergeypetrunin.arkinvest.models.TransactionEffect;
 import com.sergeypetrunin.arkinvest.repositories.FundTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,9 +31,10 @@ public class ReportController {
     public ResponseEntity<FundReport> getFundReport(
             @PathVariable UUID id,
             @RequestParam(name = "from_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant fromDate,
-            @RequestParam(name = "to_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant toDate
+            @RequestParam(name = "to_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant toDate,
+            @RequestParam(name = "transaction_effect", required = false) TransactionEffect transactionEffect
     ) {
-        List<FundTransaction> transactions = fundTransactionRepository.findByFundId(id, fromDate, toDate);
+        List<FundTransaction> transactions = fundTransactionRepository.findByFundId(id, fromDate, toDate, transactionEffect);
 
         ReportCalculator calculator = new ReportCalculator();
         BigDecimal totalBalance = calculator.calculateTotalBalance(transactions);

@@ -40,11 +40,15 @@ public class FundTransactionRepository {
         );
     }
 
-    public List<FundTransaction> findByFundId(UUID fundId, Instant fromDate, Instant toDate) {
+    public List<FundTransaction> findByFundId(UUID fundId, Instant fromDate, Instant toDate, TransactionEffect transactionEffect) {
         StringBuilder sql = new StringBuilder("SELECT * FROM fund_transaction WHERE fund_id = ?");
         List<Object> params = new ArrayList<>();
         params.add(fundId);
 
+        if (transactionEffect != null) {
+            sql.append(" AND transaction_effect = ?");
+            params.add(transactionEffect.name());
+        }
         if (fromDate != null) {
             sql.append(" AND transaction_date >= ?");
             params.add(OffsetDateTime.ofInstant(fromDate, ZoneOffset.UTC));

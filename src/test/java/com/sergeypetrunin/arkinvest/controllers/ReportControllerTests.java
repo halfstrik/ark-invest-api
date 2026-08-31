@@ -70,7 +70,7 @@ public class ReportControllerTests {
                 "Distribution"
         );
 
-        when(fundTransactionRepository.findByFundId(eq(fundId), nullable(Instant.class), nullable(Instant.class)))
+        when(fundTransactionRepository.findByFundId(eq(fundId), nullable(Instant.class), nullable(Instant.class), nullable(TransactionEffect.class)))
                 .thenReturn(List.of(contribution, interest, distribution));
 
         mockMvc.perform(get("/reports/fund/" + fundId))
@@ -122,7 +122,7 @@ public class ReportControllerTests {
                 "Late interest"
         );
 
-        when(fundTransactionRepository.findByFundId(eq(fundId), nullable(Instant.class), nullable(Instant.class)))
+        when(fundTransactionRepository.findByFundId(eq(fundId), nullable(Instant.class), nullable(Instant.class), nullable(TransactionEffect.class)))
                 .thenReturn(List.of(inRangeDistribution));
 
         mockMvc.perform(get("/reports/fund/" + fundId)
@@ -134,5 +134,43 @@ public class ReportControllerTests {
                 .andExpect(jsonPath("$.to_date").value("2026-08-15T23:59:59Z"))
                 .andExpect(jsonPath("$.transactions.length()").value(1))
                 .andExpect(jsonPath("$.transactions[0].amount").value(25.00));
+    }
+
+    @Test
+    void shouldFilterReportByTransactionEffect() throws Exception {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        FundTransaction contribution = new FundTransaction(
+                UUID.randomUUID(),
+                fundId,
+                investorId,
+                TransactionType.CONTRIBUTION,
+                TransactionEffect.CREDIT,
+                new BigDecimal("100.00"),
+                Instant.parse("2026-08-15T12:00:00Z"),
+                "Contribution"
+        );
+
+        FundTransaction distribution = new FundTransaction(
+                UUID.randomUUID(),
+                fundId,
+                investorId,
+                TransactionType.DISTRIBUTION,
+                TransactionEffect.DEBIT,
+                new BigDecimal("25.00"),
+                Instant.parse("2026-08-15T12:00:00Z"),
+                "Distribution"
+        );
+
+        when(fundTransactionRepository.findByFundId(eq(fundId), nullable(Instant.class), nullable(Instant.class), eq(TransactionEffect.CREDIT)))
+                .thenReturn(List.of(contribution));
+
+        mockMvc.perform(get("/reports/fund/" + fundId)
+                        .param("transaction_effect", "CREDIT"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total_balance").value(100.00))
+                .andExpect(jsonPath("$.transactions.length()").value(1))
+                .andExpect(jsonPath("$.transactions[0].amount").value(100.00));
     }
 }
