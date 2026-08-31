@@ -3,12 +3,15 @@ package com.sergeypetrunin.arkinvest.controllers;
 import com.sergeypetrunin.arkinvest.models.Investor;
 import com.sergeypetrunin.arkinvest.repositories.InvestorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.net.URI;
 import java.util.List;
@@ -35,8 +38,9 @@ public class InvestorController {
     }
 
     public record CreateInvestorRequest(
+            @NotBlank
             String name,
-            @Email
+            @NotNull @Email
             String email
     ) {}
 
@@ -63,5 +67,10 @@ public class InvestorController {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(IllegalArgumentException.class)
     public void handleIllegalArgument(IllegalArgumentException e) {
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public void handleDataIntegrityViolation(DataIntegrityViolationException e) {
     }
 }
