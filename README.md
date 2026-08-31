@@ -38,8 +38,6 @@ Deployment: currently this can be run either in Maven/IDE or in Docker using Doc
 For production, we would need to deploy it to, say, AWS Fargate with API Gateway or similar technology.
 Depending on whether this will be an external-facing app, the requirements will be much stricter.
 
-Parameter validation/Business logic separation
-
 Currently, the business logic is trivial. We moved it to the `business` package just for demo, but we would need to 
 think about how to best structure it depending on the tasks and needs.
 For parameter validation: as a rule of thumb, we should be strict with the output we produce and permissive with 
