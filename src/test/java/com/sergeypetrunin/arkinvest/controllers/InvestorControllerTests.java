@@ -60,6 +60,22 @@ public class InvestorControllerTests {
     }
 
     @Test
+    void shouldReturnConflictWhenEmailAlreadyExists() throws Exception {
+        when(investorRepository.create("Duplicate Investor", "duplicate@example.com"))
+                .thenThrow(new IllegalArgumentException("Investor with email 'duplicate@example.com' already exists"));
+
+        mockMvc.perform(post("/investors")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "Duplicate Investor",
+                                    "email": "duplicate@example.com"
+                                }
+                                """))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void shouldGetInvestorByIdWhenExists() throws Exception {
         UUID id = UUID.randomUUID();
         Investor investor = new Investor(id, "Sergey Petrunin", "sergey@example.com", false);

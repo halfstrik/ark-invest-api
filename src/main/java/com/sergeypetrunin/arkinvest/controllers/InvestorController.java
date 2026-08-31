@@ -59,4 +59,9 @@ public class InvestorController {
                 .map(investor -> new ResponseEntity<>(investor, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public void handleIllegalArgument(IllegalArgumentException e) {
+    }
 }
