@@ -16,6 +16,13 @@ CREATE TABLE investor (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE fund_permission (
+  fund_id TEXT NOT NULL REFERENCES fund(id),
+  investor_id TEXT NOT NULL REFERENCES investor(id),
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (fund_id, investor_id)
+);
+
 CREATE TABLE fund_transaction (
   id TEXT PRIMARY KEY,
 

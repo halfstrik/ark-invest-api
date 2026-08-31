@@ -29,8 +29,19 @@ class FundTransactionRepositoryTest {
     @BeforeEach
     void cleanDatabase() {
         jdbc.sql("DELETE FROM fund_transaction").update();
+        jdbc.sql("DELETE FROM fund_permission").update();
         jdbc.sql("DELETE FROM fund").update();
         jdbc.sql("DELETE FROM investor").update();
+    }
+
+    private void grantPermission(UUID fundId, UUID investorId) {
+        jdbc.sql("""
+                INSERT INTO fund_permission (fund_id, investor_id)
+                VALUES (:fund_id, :investor_id)
+                """)
+                .param("fund_id", fundId.toString())
+                .param("investor_id", investorId.toString())
+                .update();
     }
 
     @Test
@@ -101,6 +112,8 @@ class FundTransactionRepositoryTest {
                 .param("name", "Test Investor")
                 .param("email", "test@example.com")
                 .update();
+
+        grantPermission(fundId, investorId);
 
         UUID transactionId = repository.create(
                 fundId,
@@ -227,6 +240,9 @@ class FundTransactionRepositoryTest {
                 .param("email", "second@example.com")
                 .update();
 
+        grantPermission(firstFundId, firstInvestorId);
+        grantPermission(secondFundId, secondInvestorId);
+
         UUID firstTransactionId = repository.create(
                 firstFundId,
                 firstInvestorId,
@@ -251,5 +267,33 @@ class FundTransactionRepositoryTest {
         assertThat(result.get(0).id()).isEqualTo(firstTransactionId);
         assertThat(result.get(0).fundId()).isEqualTo(firstFundId);
         assertThat(result.get(0).description()).isEqualTo("First fund contribution");
+    }
+
+    @Test
+    void shouldRejectTransactionWithoutFundPermission() {
+        UUID fundId = UUID.randomUUID();
+        UUID investorId = UUID.randomUUID();
+
+        jdbc.sql("INSERT INTO fund (id, name, description) VALUES (:id, :name, :description)")
+                .param("id", fundId.toString())
+                .param("name", "Test Fund")
+                .param("description", "A test fund")
+                .update();
+
+        jdbc.sql("INSERT INTO investor (id, name, email) VALUES (:id, :name, :email)")
+                .param("id", investorId.toString())
+                .param("name", "Test Investor")
+                .param("email", "test@example.com")
+                .update();
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () ->
+                repository.create(
+                        fundId,
+                        investorId,
+                        TransactionType.CONTRIBUTION,
+                        TransactionEffect.CREDIT,
+                        new BigDecimal("100.0"),
+                        "No permission"
+                ));
     }
 }

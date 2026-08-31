@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sergeypetrunin.arkinvest.repositories.FundPermissionRepository;
+
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,6 +28,9 @@ public class FundTransactionRepository {
 
     @Autowired
     private JdbcClient jdbcClient;
+
+    @Autowired
+    private FundPermissionRepository fundPermissionRepository;
 
     public List<FundTransaction> findAll() {
         return jdbcTemplate.query(
@@ -89,6 +94,9 @@ public class FundTransactionRepository {
         }
         if (isInvestorDeleted(investorId)) {
             throw new IllegalArgumentException("Investor with id '" + investorId + "' is deleted");
+        }
+        if (!fundPermissionRepository.hasPermission(fundId, investorId)) {
+            throw new IllegalArgumentException("Investor with id '" + investorId + "' is not allowed to invest in fund with id '" + fundId + "'");
         }
 
         UUID id = UUID.randomUUID();

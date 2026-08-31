@@ -16,6 +16,13 @@ CREATE TABLE investor (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE fund_permission (
+    fund_id UUID NOT NULL REFERENCES fund(id),
+    investor_id UUID NOT NULL REFERENCES investor(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (fund_id, investor_id)
+);
+
 -- Since Sqlite does not support enums, we're storing them as VARCHAR(25)
 -- CREATE TYPE transaction_effect AS ENUM ('CREDIT', 'DEBIT');
 --
