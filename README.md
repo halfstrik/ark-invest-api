@@ -7,10 +7,9 @@ To run the whole application with the DB locally using Docker:
 ./mvnw clean package && docker compose up
 ```
 
-Alternatively, to run the API server using Maven, assuming the DB is running separately,
-adjustments to DB connection settings will be needed to make it fully work
+One can perform live test for the API by running:
 ```shell
-./mvnw spring-boot:run
+./collections/api-test.sh
 ```
 
 ## Design decisions and considerations
