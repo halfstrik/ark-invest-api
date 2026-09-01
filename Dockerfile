@@ -1,4 +1,4 @@
-FROM amazoncorretto:21-alpine as final
+FROM amazoncorretto:17-alpine as final
 RUN adduser -S user
 WORKDIR /app
 

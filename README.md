@@ -2,6 +2,8 @@
 
 The goal is to create a simple but production-ready CRUD API using Spring Boot and Java
 
+Application was able to be build and run using Java 17 (in both Mac and Windows)
+
 To run the whole application with the DB locally using Docker:
 ```shell
 ./mvnw clean package && docker compose up

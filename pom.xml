@@ -15,7 +15,7 @@
     <description>Simple CRUD API for a take-home task remake</description>
     <url>https://github.com/halfstrik/ark-invest-api</url>
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <dependency>
